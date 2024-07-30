@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desserts</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 id="heading">Desserts</h1>
+        <div class="innerContainer">
+            <div class="items">
+         
+                <div class="cart">
+                    <aside class="billing">
+                        <span class="itemsincart">Your Cart()</span>
+                        <div class="cart-items">
+                            <!-- Cart items will be dynamically added here by JavaScript -->
+                        </div>
+                        <div class="cart-total">
+                            <!-- Cart total will be dynamically updated here by JavaScript -->
+                        </div>
+                        <button class="confirm-order">Confirm Order</button>
+                    </aside>
+    <script >
+
+document.addEventListener('DOMContentLoaded', () => {
+    const data = [
+        { image: "assets/images/image-baklava-desktop.jpg", category: "Greek", name: 'Baklava', price: '$30' },
+        { image: 'assets/images/image-brownie-desktop.jpg', category: 'American', name: 'Brownie', price: '$20' },
+        { image: 'assets/images/image-creme-brulee-mobile.jpg', category: 'Italian', name: 'Tiramisu', price: '$30' },
+        { image: 'assets/images/image-panna-cotta-desktop.jpg', category: 'Italian', name: 'Cannoli', price: '$25' },
+        { image: 'assets/images/image-tiramisu-desktop.jpg', category: 'Italian', name: 'Gelato', price: '$15' },
+        { image: 'assets/images/image-macaron-desktop.jpg', category: 'French', name: 'Macaron', price: '$35' },
+        { image: 'assets/images/image-waffle-mobile.jpg', category: 'American', name: 'Cheesecake', price: '$50' },
+        { image: 'assets/images/image-meringue-desktop.jpg', category: 'French', name: 'Croissant', price: '$10' },
+        { image: 'assets/images/image-macaron-thumbnail.jpg', category: 'American', name: 'Donuts', price: '$18' }
+    ];
+
+    const itemsContainer = document.querySelector('.items');
+    const cartItemsContainer = document.querySelector('.cart-items');
+    const cartTotalContainer = document.querySelector('.cart-total');
+    const itemsInCart = document.querySelector('.itemsincart');
+
+    const cart = [];
+
+    function updateCart(button, count) {
+        const itemName = button.closest('.item').querySelector('.itemname').textContent;
+        const itemPrice = parseFloat(button.closest('.item').querySelector('.itemprice').textContent.replace('$', ''));
+
+        let itemInCart = cart.find(item => item.name === itemName);
+
+        if (itemInCart) {
+            itemInCart.count = count;
+            if (count === 0) {
+                cart.splice(cart.indexOf(itemInCart), 1);
+            }
+        } else {
+            cart.push({ name: itemName, price: itemPrice, count: count });
+        }
+
+        renderCart();
+    }
+
+    function renderCart() {
+        cartItemsContainer.innerHTML = '';
+        let total = 0;
+        cart.forEach(item => {
+            total += item.price * item.count;
+            const cartItem = document.createElement('div');
+            cartItem.classList.add('cart-item');
+            cartItem.innerHTML = `
+                <span>${item.name}</span>
+                <span>${item.count}x @ $${item.price.toFixed(2)} = $${(item.price * item.count).toFixed(2)}</span>
+                <button class="remove-item">x</button>
+            `;
+            cartItem.querySelector('.remove-item').addEventListener('click', () => {
+                cart.splice(cart.indexOf(item), 1);
+                renderCart();
+            });
+            cartItemsContainer.appendChild(cartItem);
+        });
+        cartTotalContainer.textContent = `Total: $${total.toFixed(2)}`;
+        itemsInCart.textContent = `Your Cart (${cart.reduce((acc, item) => acc + item.count, 0)})`;
+    }
+
+    data.forEach(itemData => {
+        // Create each item element
+        const item = document.createElement('div');
+        item.classList.add('item');
+
+        const img = document.createElement('img');
+        img.src = itemData.image;
+        img.alt = itemData.name;
+        item.appendChild(img);
+
+        // Add to cart button
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.classList.add('icon-button');
+
+        // Add to cart image icon
+        const iconImg = document.createElement('img');
+        iconImg.src = 'assets/images/icons8-add-to-cart-50.png';
+        iconImg.classList.add('iconImg');
+        button.appendChild(iconImg);
+
+        const span = document.createElement('span');
+        span.classList.add('add');
+        span.innerText = 'Add to Cart';
+        button.appendChild(span);
+
+        item.appendChild(button);
+
+        // Item data
+        const itemCategory = document.createElement('span');
+        itemCategory.classList.add('itemCategory');
+        itemCategory.innerText = itemData.category;
+        item.appendChild(itemCategory);
+
+        const itemName = document.createElement('span');
+        itemName.classList.add('itemname');
+        itemName.innerText = itemData.name;
+        item.appendChild(itemName);
+
+        const itemPrice = document.createElement('span');
+        itemPrice.classList.add('itemprice');
+        itemPrice.innerText = itemData.price;
+        item.appendChild(itemPrice);
+
+        itemsContainer.appendChild(item);
+
+        // Add event listener to the button
+        button.addEventListener('click', () => {
+            if (!button.classList.contains('clicked')) {
+                button.classList.add('clicked');
+                const icon = button.querySelector('img');
+                const label = button.querySelector('span');
+                if (icon) icon.style.display = 'none';
+                if (label) label.style.display = 'none';
+
+                if (!button.querySelector('.control-buttons')) {
+                    const controlButtonsContainer = document.createElement('div');
+                    controlButtonsContainer.classList.add('control-buttons');
+
+                    const minusButton = document.createElement('button');
+                    minusButton.classList.add('control-button');
+                    minusButton.innerHTML = '-';
+
+                    const numberDisplay = document.createElement('span');
+                    numberDisplay.classList.add('number-display');
+                    numberDisplay.innerHTML = '0';
+
+                    const plusButton = document.createElement('button');
+                    plusButton.classList.add('control-button');
+                    plusButton.innerHTML = '+';
+
+                    controlButtonsContainer.appendChild(minusButton);
+                    controlButtonsContainer.appendChild(numberDisplay);
+                    controlButtonsContainer.appendChild(plusButton);
+
+                    button.appendChild(controlButtonsContainer);
+
+                    plusButton.addEventListener('click', () => {
+                        numberDisplay.innerHTML = parseInt(numberDisplay.innerHTML) + 1;
+                        updateCart(button, parseInt(numberDisplay.innerHTML));
+                    });
+
+                    minusButton.addEventListener('click', () => {
+                        let currentNumber = parseInt(numberDisplay.innerHTML);
+                        if (currentNumber > 0) {
+                            numberDisplay.innerHTML = currentNumber - 1;
+                            updateCart(button, parseInt(numberDisplay.innerHTML));
+                        }
+                    });
+                }
+            }
+        });
+    });
+});
+
+// const items=document.querySelectorAll('.item');
+
+// items.forEach(item=>{
+
+
+
+
+
+//  const itemCategory=document.createElement('span');
+//  itemCategory.classList.add('itemcategory');
+
+//  itemCategory.innerText='Baklava'
+
+
+//  const itemName=document.createElement('span');
+//  itemName.classList.add('itemname');
+//  itemName.innerText='Pistachio Baklava'
+
+//  const itemPrice=document.createElement('span');
+//  itemPrice.classList.add('itemprice');
+// itemPrice.innerText='$40';
+
+// item.appendChild(itemCategory)
+//  item.appendChild(itemName);
+//  item.appendChild(itemPrice);
+
+// });
+//  })
+
+    </script>
+</body>
+</html>
